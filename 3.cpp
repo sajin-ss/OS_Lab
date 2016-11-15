@@ -1,4 +1,4 @@
-/* Pgm. 3
+  /* Pgm. 3
    SAJIN - 052 - s7
    SHARED MEMORY MATRIX 
    21/08/2015
@@ -68,7 +68,7 @@ int main()
 {
    int shmid;
    
-    if ((shmid = shmget(IPC_PRIVATE, 3*sizeof(matrix), 0666) < 0))
+    if ((shmid = shmget(IPC_PRIVATE, 3*sizeof(matrix), 0666)) < 0)
    {
       cout << "\nError in creating shmid\n";
       return 0;
@@ -84,26 +84,33 @@ int main()
       if (cid2)
       {
          //PARENT
-         matrix *shmptr = (matrix *) shmat(shmid, NULL, 0);
+
+         matrix *shmptr = (matrix*) shmat(shmid, NULL, 0);
+         if (shmptr <0)
+         {
+          cout << "Noooooooooo"<<endl;
+          return 0;
+         } 
+
       
          //parent displays output after children do matrix operations
-         matrix m1 = shmptr[0];
+         matrix m1 = *shmptr;
          m1.display();
-         matrix m2 = shmptr[1];
+         matrix m2 = *(shmptr+1);
          m2.display();
-         matrix m3 = shmptr[2];
+         matrix m3 = *(shmptr+2);
          m3.display();
       }
       else
       {
          //CHILD 2 - does the multiply
-         matrix *ccptr = (matrix *) shmat(shmid, NULL, 0);
+         matrix *ccptr = (matrix*) shmat(shmid, NULL, 0);
          
-         matrix m1 = ccptr[0];
-         matrix m2 = ccptr[1];
+         matrix m1 = *ccptr;
+         matrix m2 = *(ccptr+1);
          
          matrix m3 = m1.multiply(m2);
-         ccptr[2] = m3;
+         *(ccptr+2) = m3;
          
       }
       
@@ -113,7 +120,7 @@ int main()
    {
       //CHILD 1 - does the read
       
-      matrix *cptr = (matrix *) shmat(shmid, NULL, 0);
+      matrix *cptr = (matrix*) shmat(shmid, NULL, 0);
       
       int r, c;
       cout << "\nEnter size of matrix 1 : ";
@@ -121,14 +128,14 @@ int main()
       
       matrix m1(r, c);
       m1.read();
-      cptr[0] = m1;
+      *cptr = m1;
 
       cout << "\nEnter size of matrix 2 : ";
       cin >> r >> c;
       
       matrix m2(r, c);
       m2.read();
-      cptr[1] = m2;
+      *(cptr+1) = m2;
    }
 
  cout << endl;
