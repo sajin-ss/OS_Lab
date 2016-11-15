@@ -1,0 +1,40 @@
+#include<iostream>
+#include<sys/types.h>
+#include<unistd.h>
+#include<pthread.h>
+#include<stdlib.h>
+using namespace std;
+
+bool over;
+
+void *worker(void *args)
+{
+  int *tid = (int*)args;
+  //cout<<inc<<endl;
+  int num=0;
+  while(!over && num<=100)
+    {
+      int inc = rand()%10+1;
+      num+=inc;
+      if(num>100){
+	over=true;
+	printf("%d : %d\n",*tid,num);
+	cout<<" Winner : "<<*tid<<endl;
+      }
+      if(!over)
+	printf("%d : %d\n",*tid,num);
+      sleep(1);
+    }
+}
+int main()
+{
+  pthread_t a[7];
+  int id[7]={0,1,2,3,4,5,6};
+  over=false;
+  for(int i=0;i<7;++i)
+    {
+      pthread_create(&a[i],NULL,&worker,&id[i]);
+    }
+  pthread_exit(NULL);
+  return 0;
+}

@@ -1,0 +1,48 @@
+#include<iostream>
+#include<semaphore.h>
+#include<pthread.h>
+#include<fcntl.h>
+#include<sys/types.h>
+#include<unistd.h>
+#include<stdlib.h>
+#include<string>
+#define max 6
+using namespace std;
+sem_t chopstick[max];
+pthread_t philosopher[max];
+
+void *eat(void *args)
+{
+  int *num = (int*) args;
+  int n = *num;
+  //cout<<*num<<endl;
+  cout<<"Waiting : " + to_string(n) + "\n";
+  sem_wait(&chopstick[n]);
+  sem_wait(&chopstick[(n+1)%max]);
+  cout<<"Eating : " + to_string(n) + "\n";
+  sem_post(&chopstick[(n+1)%max]);
+  sem_post(&chopstick[n]);
+  cout<<"Thinking : " + to_string(n) + "\n";
+  
+}
+using namespace std;
+int main()
+{
+  for(int i=0;i<max;++i)
+    {
+      if(sem_init(&chopstick[i],0,1)==-1)
+	{
+	  cout<<"Error init";
+	  return -1;
+	}
+    }
+  int n[max];
+  for (int i=0;i<max;++i)
+    n[i]=i;
+  for(int i=0;i<max;++i)
+    {
+      pthread_create(&philosopher[i],NULL,&eat,&n[i]);
+    }
+  pthread_exit(NULL);
+  return 0;
+}

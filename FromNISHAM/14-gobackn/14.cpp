@@ -1,0 +1,251 @@
+#include<iostream>
+#include<stdio.h>
+#include<sys/types.h>
+#include<string.h>
+#include<stdlib.h>
+#include<sys/socket.h>
+#include<arpa/inet.h>
+#include<unistd.h>
+#include<fcntl.h>
+//#include<pair.h>
+#include<fstream>
+#define max 20
+#define ws 8
+#define sa struct sockaddr
+#define listenq 5
+#define defport "132445"
+#define arrsize 30
+using namespace std;
+class slidingWindow
+{
+public:
+  int a[10];
+  int shft;
+  slidingWindow()
+  {
+    shft=0;
+    for(int i=0;i<ws;++i)
+      a[i]=0;
+  }
+  void add(int num)
+  {
+    a[(num-shft)%ws]=num;
+  }
+  void ack(int num)
+  {
+    a[(num-shft)%ws]=0;
+  }	
+  void shift(int m)
+  {
+    shft+=m;
+  }
+  void shiftone()
+  {
+    shft++;
+  }
+  pair<int,int> done()
+  {
+    for(int i=0;i<ws;++i)
+      if (a[i]>0)
+	return *new pair<int,int>(i+1,a[i]);
+    return *new pair<int,int>(0,0);
+  }
+  void print()
+  {
+    cout<<endl;
+    for(int i=0;i<ws;++i)
+      {
+	cout<<a[i]<<" ";
+      }
+    cout<<endl;
+  }
+  
+};
+
+class receiver
+{
+public:
+  int a;
+  int ack = 0;
+  int myack=0;
+  int size;
+  char* port;
+  receiver(char* port)
+  {
+    this->port = port;
+  }
+  void receive()
+  {
+    int fd,sockfd,listenfd,connfd;
+    pid_t childpid;
+    socklen_t client;
+    
+    struct sockaddr_in servaddr, cliaddr;
+    listenfd = socket(AF_INET, SOCK_STREAM, 0);
+    bzero(&servaddr, sizeof(servaddr));
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_addr.s_addr=htonl(INADDR_ANY);
+    servaddr.sin_port = htons(atoi(this->port));
+    bind(listenfd,(sa*)&servaddr,sizeof(servaddr));
+
+    listen(listenfd,listenq);
+    client=sizeof(cliaddr);
+    
+    connfd=accept(listenfd,(sa*)&cliaddr,&client);
+    fcntl(connfd, F_SETFL, O_NONBLOCK);
+    char buffer[100];
+    bzero(buffer,sizeof(buffer));
+
+    read(connfd, &size, sizeof(int));
+    int i=0;
+    int count=0;
+    while(i<size)
+      {
+	//for testing
+	//if(count++>500)
+	//break;
+	if(myack>size)
+	  break;
+	int buff[2];
+	size_t one=recv(connfd, &buff, sizeof(int)*2, 0);
+	if(one==-1)
+	  continue;
+	a=buff[0];
+	ack=buff[1];
+	//cout<<one<<endl;
+	if(one==8)
+	  {
+	    if(ack==myack)
+	      {
+		cout<<"Recieved : "<<a<<endl;
+		if(rand()%10)
+		  {
+		    cout<<"Sent Acknowledge Number : "<<ack<<endl;
+		    write(connfd, &ack, sizeof(int));
+		    i++;
+		    myack++;
+		  }
+		else
+		  {
+		    cout<<"no acknowledge sent"<<endl;
+		  }
+	      }
+	    else
+	      {
+		cout<<"Different packet received : "<<a<<endl;
+	      }
+   	  }
+      }
+  }
+};
+
+class sender
+{
+public:
+  int *a;
+  int tries;
+  int size;
+  int retryAfter;
+  char *port;
+  slidingWindow sw;
+  sender(int arr[],int size, char *port)
+  {
+    tries = 5;
+    retryAfter=1000000;
+    this->a = arr;
+    this->size=size;
+    this->port = port;
+    
+  }
+
+  void send()
+  {
+    int sockfd;
+    char fname[25];
+    int len;
+
+    struct sockaddr_in servaddr,cliaddr;
+    sockfd=socket(AF_INET,SOCK_STREAM,0);
+    bzero(&servaddr, sizeof(servaddr));
+    servaddr.sin_family=AF_INET;
+    servaddr.sin_addr.s_addr=htonl(INADDR_ANY);
+    servaddr.sin_port=htons(atoi(this->port));
+    inet_pton(AF_INET,this->port,&servaddr.sin_addr);
+    connect(sockfd,(sa*)&servaddr,sizeof(servaddr));
+    fcntl(sockfd, F_SETFL, O_NONBLOCK);
+    write(sockfd, &size, sizeof(int));
+    int i=0;
+    int tried=0;
+    int after=0;
+
+    while(i<size)
+      {	
+	for(int j=i;j-i<ws && j<size;++j)
+	  {
+	    int buff[2];
+	    buff[0]=a[j];
+	    buff[1]=j;
+	    write(sockfd, &buff, sizeof(int)*2);
+	    cout<<"sent : "<<buff[0]<<" "<<buff[1]<<endl;
+	    sw.add(j);
+	  }
+	for(int j=0;j<ws*10;++j)
+	  {
+	    int ack;
+	    size_t n=recv(sockfd,&ack,sizeof(int),0);
+	    if(n==4)
+	      {
+		cout<<"Received ack for : "<<ack<<endl;
+		sw.ack(ack);
+	      }
+	    
+	  }
+	auto k=sw.done();
+	if(k.first)
+	  {
+	    //cout<<"k.first bigger than 0"<<endl;
+	    sw.shift(k.first);
+	    i+=k.first;
+	  }
+	else
+	  {
+	    //i+=ws;
+	  }
+	sw.print();
+			
+      }
+  }
+};
+
+int main(int argc, char **argv)
+{
+  if(argc<2)
+    {
+      cout<<"usage : ./14 s/c [port]"<<endl;
+    }
+  //cout<<argv[1];
+  if (argv[1][0]=='c')
+    {
+      //      cout<<"sender";
+      char port[10] = defport;
+      if(argc>3)
+	strcpy(port,argv[3]);
+      //      cout<<port;
+      int a[arrsize];
+      for(int i=0;i<arrsize;i++)
+	a[i]=(i+1)*5;
+      sender s(a,arrsize,port);
+      s.send();
+    }
+  else
+    {
+      //      cout<<"receiver";
+      char port[10] = defport;
+      if(argc>3)
+	strcpy(port,argv[3]);
+      //      cout<<port;
+      receiver r(port);
+      r.receive();
+    }
+  return 0;
+}
