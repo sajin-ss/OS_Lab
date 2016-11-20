@@ -1,0 +1,212 @@
+MENU
+1. Status
+2. Request
+3. Exit
+1
+
+Available
+2  2  2  
+
+Max Reqd
+5  4  2  
+3  1  3  
+4  2  4  
+1  2  1  
+
+Current Allocation
+2  2  1  
+0  1  0  
+2  0  2  
+1  2  0  
+
+Need
+3  2  1  
+3  0  3  
+2  2  2  
+0  0  1  
+2
+
+ Enter process num : 0
+
+Enter resource request : 3 2 1
+
+ Cannot be granted 
+
+1
+
+Available
+2  2  2  
+
+Max Reqd
+5  4  2  
+3  1  3  
+4  2  4  
+1  2  1  
+
+Current Allocation
+2  2  1  
+0  1  0  
+2  0  2  
+1  2  0  
+
+Need
+3  2  1  
+3  0  3  
+2  2  2  
+0  0  1  
+2
+
+ Enter process num : 1
+
+Enter resource request : 1 0 1
+2
+
+ Enter process num : 3
+
+Enter resource request : 0 0 0
+1
+
+Available
+1  2  1  
+
+Max Reqd
+5  4  2  
+3  1  3  
+4  2  4  
+1  2  1  
+
+Current Allocation
+2  2  1  
+1  1  1  
+2  0  2  
+1  2  0  
+
+Need
+3  2  1  
+2  0  2  
+2  2  2  
+0  0  1  
+2
+
+ Enter process num : 0
+
+Enter resource request : 1 2 1
+
+ Cannot be granted 
+2
+
+ Enter process num : 0
+
+Enter resource request : 0 0 1
+
+ Cannot be granted 
+
+2
+
+ Enter process num : 0
+
+Enter resource request : 1 0 0
+1
+
+Available
+0  2  1  
+
+Max Reqd
+5  4  2  
+3  1  3  
+4  2  4  
+1  2  1  
+
+Current Allocation
+3  2  1  
+1  1  1  
+2  0  2  
+1  2  0  
+
+Need
+2  2  1  
+2  0  2  
+2  2  2  
+0  0  1  
+2
+
+ Enter process num : 0
+
+Enter resource request : 0 0 1
+
+ Cannot be granted 
+2
+
+ Enter process num : 1
+
+Enter resource request : 0 0 1
+
+ Cannot be granted 
+2
+
+ Enter process num : 2
+
+Enter resource request : 0 0 1
+
+ Cannot be granted 
+2
+
+ Enter process num : 3
+
+Enter resource request : 0 0 1
+1
+
+Available
+1  4  1  
+
+Max Reqd
+5  4  2  
+3  1  3  
+4  2  4  
+1  2  1  
+
+Current Allocation
+3  2  1  
+1  1  1  
+2  0  2  
+0  0  0  
+
+Need
+2  2  1  
+2  0  2  
+2  2  2  
+0  0  0  
+0
+ 
+1
+
+Available
+1  4  1  
+
+Max Reqd
+5  4  2  
+3  1  3  
+4  2  4  
+1  2  1  
+
+Current Allocation
+3  2  1  
+1  1  1  
+2  0  2  
+0  0  0  
+
+Need
+2  2  1  
+2  0  2  
+2  2  2  
+0  0  0  
+
+
+
+2
+
+ Enter process num : 1
+
+Enter resource request : 2 0 2
+
+ Cannot be granted 
