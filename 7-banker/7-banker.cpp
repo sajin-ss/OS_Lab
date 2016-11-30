@@ -148,32 +148,32 @@ void grantRequest(int m, int n)
        if ( checkSafety(n, p, req, m))
        {
        
-       int over = 1;
-	for (int i = 0; i < m; ++i)
-	{
-	   available[i] -= req[i];
-	   need[p][i] -= req[i];
-	   allocation[p][i] += req[i];
-	   
-	   if (need[p][i]!=0)
-	     over = 0;
-	}
+                 int over = 1;
+          	for (int i = 0; i < m; ++i)
+          	{
+          	   available[i] -= req[i];
+          	   need[p][i] -= req[i];
+          	   allocation[p][i] += req[i];
+          	   
+          	   if (need[p][i]!=0)
+          	     over = 0;
+          	}
+          	
+          	if (over)
+          	{
+          	     working.erase(p);
+          	     
+          	     for (int i=0; i<m; ++i)
+          	     {
+          	        available[i] += max_res[p][i];
+          	        allocation[p][i] = 0;
+          	     }
+	           }
 	
-	if (over)
-	{
-	  working.erase(p);
-	  
-	  for (int i=0; i<m; ++i)
-	  {
-	     available[i] += max_res[p][i];
-	     allocation[p][i] = 0;
-	  }
-	}
-	
-	cout << "\n Granted \n ";
+	           cout << "\n Granted \n ";
        }
        else
-         cout << "\n Cannot be granted \n";
+            cout << "\n Cannot be granted \n";
 
 }
 
