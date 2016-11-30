@@ -105,7 +105,7 @@ set<int> donemp;
             {
               for (int j=0; j<m; ++j)
               {
-                  T_available[j] += max_res[i][j];
+                  T_available[j] += T_allocation[i][j];
                   T_need[i][j] = 0;
 
                   set<int>::iterator it;
